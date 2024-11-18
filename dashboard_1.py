@@ -6,6 +6,8 @@ import plotly.express as px
 
 # Load the dataset
 df = pd.read_csv("has_stores_data_all_divided.csv")
+# Convert 'estimated_yearly_sales' to numeric, setting non-numeric values to NaN
+df['estimated_yearly_sales'] = pd.to_numeric(df['estimated_yearly_sales'], errors='coerce')
 
 # Ensure 'assigned_to' column exists
 if 'assigned_to' not in df.columns:
