@@ -8,6 +8,12 @@ import plotly.express as px
 # Load the dataset
 df = pd.read_csv("has_stores_data_all_divided.csv")
 
+df['estimated_yearly_sales'] = df['estimated_yearly_sales'] \
+    .str.replace('USD', '', regex=False) \
+    .str.replace('$', '', regex=False) \
+    .str.replace(',', '', regex=False) \
+    .astype(float)
+
 # Ensure 'assigned_to' column exists
 if 'assigned_to' not in df.columns:
     df['assigned_to'] = None  # Initialize with None or empty string
