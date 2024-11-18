@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,6 +7,7 @@ import plotly.express as px
 # Load the dataset
 df = pd.read_csv("has_stores_data_all_divided.csv")
 
+# Clean and convert estimated yearly sales to numeric
 df['estimated_yearly_sales'] = df['estimated_yearly_sales'] \
     .str.replace('USD', '', regex=False) \
     .str.replace('$', '', regex=False) \
@@ -28,18 +28,25 @@ region_filter = st.sidebar.multiselect("Select Regions", df["region"].unique(), 
 category_filter = st.sidebar.multiselect("Select Categories", df["Head_category"].unique(), default=df["Head_category"].unique())
 status_filter = st.sidebar.selectbox("Select Status", df["status"].unique())
 
+# Add filter for Estimated Yearly Sales
+min_sales, max_sales = df['estimated_yearly_sales'].min(), df['estimated_yearly_sales'].max()
+sales_filter = st.sidebar.slider("Select Estimated Yearly Sales Range", min_value=int(min_sales), max_value=int(max_sales), 
+                                  value=(int(min_sales), int(max_sales)))
+
 # Filter Data based on selections
 filtered_df = df[
     (df["region"].isin(region_filter)) & 
     (df["Head_category"].isin(category_filter)) & 
-    (df["status"] == status_filter)
+    (df["status"] == status_filter) &
+    (df['estimated_yearly_sales'] >= sales_filter[0]) & 
+    (df['estimated_yearly_sales'] <= sales_filter[1])
 ]
 
 # Display Filtered Data
 if filtered_df.empty:
-    st.write(f"No data available for the filters: Regions - {region_filter}, Categories - {category_filter}, Status - {status_filter}")
+    st.write(f"No data available for the filters: Regions - {region_filter}, Categories - {category_filter}, Status - {status_filter}, Sales Range - {sales_filter}")
 else:
-    st.write(f"Displaying data for **{', '.join(region_filter)}** regions, **{', '.join(category_filter)}** categories, and **{status_filter}** status:")
+    st.write(f"Displaying data for **{', '.join(region_filter)}** regions, **{', '.join(category_filter)}** categories, **{status_filter}** status, and Estimated Yearly Sales between **${sales_filter[0]}** and **${sales_filter[1]}**:")
 
     # Select and display specific columns in the table with 'domain' first
     columns_to_display = [
@@ -61,9 +68,7 @@ else:
     
     if selected_region:
         leads_in_region = grouped_by_region[grouped_by_region['region'] == selected_region]['domain'].values[0]
-        # st.write(f"Leads in {selected_region}:")
-        # st.write(leads_in_region)
-
+        
         # Adding new sales team member functionality
         if 'sales_team_members' not in st.session_state:
             st.session_state.sales_team_members = ["Yadvendra"]  # Default members
