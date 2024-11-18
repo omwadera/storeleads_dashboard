@@ -1,15 +1,12 @@
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
-import io
 
 # Load the dataset
 df = pd.read_csv("has_stores_data_all_divided.csv")
-
-# Convert 'estimated_yearly_sales' to numeric
-df['estimated_yearly_sales'] = pd.to_numeric(df['estimated_yearly_sales'].str.replace(',', ''), errors='coerce')
 
 # Ensure 'assigned_to' column exists
 if 'assigned_to' not in df.columns:
@@ -58,6 +55,8 @@ else:
     
     if selected_region:
         leads_in_region = grouped_by_region[grouped_by_region['region'] == selected_region]['domain'].values[0]
+        # st.write(f"Leads in {selected_region}:")
+        # st.write(leads_in_region)
 
         # Adding new sales team member functionality
         if 'sales_team_members' not in st.session_state:
@@ -74,7 +73,7 @@ else:
         assigned_member = st.selectbox("Assign to Sales Team Member:", st.session_state.sales_team_members) 
         
         if st.button("Assign All Leads in Selected Region"):
-            # Update the 'assigned_to' column for all leads in the selected region.
+            # Here we update the 'assigned_to' column for all leads in the selected region.
             for lead in leads_in_region:
                 edited_df.loc[edited_df['domain'] == lead, 'assigned_to'] = assigned_member  # Update the DataFrame
             st.success(f"Assigned {len(leads_in_region)} leads in {selected_region} to {assigned_member}.")
@@ -84,7 +83,6 @@ else:
         df.update(edited_df)  # Update the original DataFrame with changes made in the editable table
 
     # Export Button for Filtered Data
-    st.sidebar.subheader("Export Filtered Data")
     export_format = st.sidebar.selectbox("Select Export Format", ["CSV", "Excel"])
     
     if export_format == "CSV":
@@ -95,6 +93,7 @@ else:
             mime="text/csv"
         )
     elif export_format == "Excel":
+        import io
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             filtered_df[columns_to_display].to_excel(writer, index=False, sheet_name='Filtered Data')
