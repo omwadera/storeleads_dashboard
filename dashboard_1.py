@@ -29,24 +29,42 @@ category_filter = st.sidebar.multiselect("Select Categories", df["Head_category"
 status_filter = st.sidebar.selectbox("Select Status", df["status"].unique())
 
 # Add filter for Estimated Yearly Sales
-min_sales, max_sales = df['estimated_yearly_sales'].min(), df['estimated_yearly_sales'].max()
-sales_filter = st.sidebar.slider("Select Estimated Yearly Sales Range", min_value=int(min_sales), max_value=int(max_sales), 
-                                  value=(int(min_sales), int(max_sales)))
+sales_filter_option = st.sidebar.selectbox(
+    "Select Estimated Yearly Sales Range",
+    ["100+", "10,000+", "100,000+", "1,000,000+", "Custom"]
+)
+
+# Determine sales filter based on selection
+if sales_filter_option == "100+":
+    min_sales = 100
+    max_sales = df['estimated_yearly_sales'].max()
+elif sales_filter_option == "10,000+":
+    min_sales = 10000
+    max_sales = df['estimated_yearly_sales'].max()
+elif sales_filter_option == "100,000+":
+    min_sales = 100000
+    max_sales = df['estimated_yearly_sales'].max()
+elif sales_filter_option == "1,000,000+":
+    min_sales = 1000000
+    max_sales = df['estimated_yearly_sales'].max()
+else:  # Custom option
+    min_sales = st.sidebar.number_input("Minimum Estimated Yearly Sales", value=0)
+    max_sales = st.sidebar.number_input("Maximum Estimated Yearly Sales", value=int(df['estimated_yearly_sales'].max()))
 
 # Filter Data based on selections
 filtered_df = df[
     (df["region"].isin(region_filter)) & 
     (df["Head_category"].isin(category_filter)) & 
     (df["status"] == status_filter) &
-    (df['estimated_yearly_sales'] >= sales_filter[0]) & 
-    (df['estimated_yearly_sales'] <= sales_filter[1])
+    (df['estimated_yearly_sales'] >= min_sales) & 
+    (df['estimated_yearly_sales'] <= max_sales)
 ]
 
 # Display Filtered Data
 if filtered_df.empty:
-    st.write(f"No data available for the filters: Regions - {region_filter}, Categories - {category_filter}, Status - {status_filter}, Sales Range - {sales_filter}")
+    st.write(f"No data available for the filters: Regions - {region_filter}, Categories - {category_filter}, Status - {status_filter}, Sales Range - {min_sales} to {max_sales}")
 else:
-    st.write(f"Displaying data for **{', '.join(region_filter)}** regions, **{', '.join(category_filter)}** categories, **{status_filter}** status, and Estimated Yearly Sales between **${sales_filter[0]}** and **${sales_filter[1]}**:")
+    st.write(f"Displaying data for **{', '.join(region_filter)}** regions, **{', '.join(category_filter)}** categories, **{status_filter}** status, and Estimated Yearly Sales between **${min_sales}** and **${max_sales}**:")
 
     # Select and display specific columns in the table with 'domain' first
     columns_to_display = [
