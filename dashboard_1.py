@@ -64,7 +64,7 @@ filtered_df = df[
 if filtered_df.empty:
     st.write(f"No data available for the filters: Regions - {region_filter}, Categories - {category_filter}, Status - {status_filter}, Sales Range - {min_sales} to {max_sales}")
 else:
-    st.write(f"Displaying data for **{', '.join(region_filter)}** regions, **{', '.join(category_filter)}** categories, **{status_filter}** status, and Estimated Yearly Sales between **${min_sales}** and **${max_sales}**:")
+    st.write(f"Displaying data for **{', '.join(region_filter)}** regions, **{', '.join(category_filter)}** categories, **{status_filter}** status, and Estimated Yearly Sales between **${min_sales} and ${max_sales}**:")
 
     # Select and display specific columns in the table with 'domain' first
     columns_to_display = [
